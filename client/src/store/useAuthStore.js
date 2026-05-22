@@ -45,7 +45,7 @@ const useAuthStore = create((set) => ({
     try {
       await api.post('/auth/logout');
       set({ user: null, isAuthenticated: false, isLoading: false });
-    } catch (error) {
+    } catch {
       set({ error: 'Logout failed', isLoading: false });
     }
   },
@@ -56,7 +56,7 @@ const useAuthStore = create((set) => ({
     try {
       const { data } = await api.get('/auth/me');
       set({ user: data, isAuthenticated: true, isLoading: false });
-    } catch (error) {
+    } catch {
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },

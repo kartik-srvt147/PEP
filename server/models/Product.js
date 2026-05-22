@@ -84,15 +84,13 @@ productSchema.index({
   tags: 'text',
 });
 
-productSchema.pre('validate', function (next) {
+productSchema.pre('validate', function () {
   if (Array.isArray(this.tags)) {
     this.tags = this.tags
       .map((tag) => String(tag).trim().toLowerCase())
       .filter(Boolean);
     this.tags = [...new Set(this.tags)];
   }
-
-  next();
 });
 
 const Product = mongoose.model('Product', productSchema);

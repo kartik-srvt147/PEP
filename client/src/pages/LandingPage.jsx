@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ShoppingBag, TrendingUp, Zap } from 'lucide-react';
 
@@ -10,7 +10,7 @@ const LandingPage = () => {
       try {
         const { data } = await axios.get('http://localhost:5000/api/test');
         setApiStatus(data.message);
-      } catch (error) {
+      } catch {
         setApiStatus('API connection failed. Ensure server is running.');
       }
     };
