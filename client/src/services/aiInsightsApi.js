@@ -17,6 +17,12 @@ const generatePricingInsights = async (products) => {
   return data;
 };
 
+const generateBusinessInsights = async (products) => {
+  const { data } = await api.post('/ai-insights/summary', buildPayload(products));
+
+  return data;
+};
+
 const generateTrendingInsights = async (products) => {
   const { data } = await api.post('/ai-insights/trending-products', buildPayload(products));
 
@@ -36,6 +42,7 @@ const generateImprovementSuggestions = async (products) => {
 };
 
 export {
+  generateBusinessInsights,
   generatePricingInsights,
   generateTrendingInsights,
   generateInventoryAlerts,

@@ -8,12 +8,9 @@ import {
   Sparkles,
   TrendingUp,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
-  generateImprovementSuggestions,
-  generateInventoryAlerts,
-  generatePricingInsights,
-  generateTrendingInsights,
+  generateBusinessInsights,
 } from '../../services/aiInsightsApi';
 
 const currency = new Intl.NumberFormat('en-US', {
@@ -69,24 +66,23 @@ const PanelSkeleton = () => (
   <section className="animate-pulse space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
     <div className="h-5 w-44 rounded bg-slate-100" />
     <div className="h-3 w-96 max-w-full rounded bg-slate-100" />
-    <div className="grid gap-4 lg:grid-cols-3">
-      <div className="h-44 rounded-lg bg-slate-100" />
-      <div className="h-44 rounded-lg bg-slate-100" />
-      <div className="h-44 rounded-lg bg-slate-100" />
+    <div className="grid gap-3 lg:grid-cols-2">
+      <div className="h-36 rounded-lg bg-slate-100" />
+      <div className="h-36 rounded-lg bg-slate-100" />
     </div>
   </section>
 );
 
 const PricingCards = ({ data }) => (
-  <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div className="space-y-4">
     <SectionTitle
       icon={CircleDollarSign}
       title="Pricing insights"
       summary={data.summary || 'Recommendations based on pricing, stock pressure, revenue, and sales.'}
     />
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200">
       {(data.recommendations || []).slice(0, 4).map((item) => (
-        <article key={item.productTitle} className="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+        <article key={item.productTitle} className="bg-white p-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
               <h4 className="text-sm font-bold text-slate-950">{item.productTitle}</h4>
@@ -101,13 +97,15 @@ const PricingCards = ({ data }) => (
               </span>
             </div>
           </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">{item.reason}</p>
-          <div className="mt-3 rounded-lg bg-white p-3 ring-1 ring-slate-200">
-            <p className="text-xs font-bold uppercase text-slate-400">Test range</p>
-            <p className="mt-1 text-sm font-bold text-slate-900">
+          <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+            <p className="text-sm leading-6 text-slate-600">{item.reason}</p>
+            <div className="rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
+              <p className="text-xs font-bold uppercase text-slate-400">Test range</p>
+              <p className="mt-1 text-sm font-bold text-slate-900">
               {currency.format(item.suggestedPriceRange?.minimum || 0)} -{' '}
               {currency.format(item.suggestedPriceRange?.maximum || 0)}
-            </p>
+              </p>
+            </div>
           </div>
           <p className="mt-3 inline-flex gap-2 text-sm font-semibold text-primary">
             <ArrowRight className="mt-0.5 h-4 w-4 shrink-0" />
@@ -120,15 +118,15 @@ const PricingCards = ({ data }) => (
 );
 
 const TrendWidgets = ({ data }) => (
-  <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div className="space-y-4">
     <SectionTitle
       icon={TrendingUp}
       title="Trend analysis"
       summary={data.summary || 'Momentum signals from current ecommerce metrics.'}
     />
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {(data.trendingProducts || []).slice(0, 6).map((item) => (
-        <article key={item.productTitle} className="rounded-lg border border-slate-200 p-4 transition hover:border-blue-200 hover:bg-blue-50/40">
+    <div className="grid gap-3 lg:grid-cols-2">
+      {(data.trendingProducts || []).slice(0, 4).map((item) => (
+        <article key={item.productTitle} className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="flex items-start justify-between gap-2">
             <div>
               <h4 className="text-sm font-bold text-slate-950">{item.productTitle}</h4>
@@ -137,10 +135,8 @@ const TrendWidgets = ({ data }) => (
             <Badge value={item.momentum} />
           </div>
           <p className="mt-3 text-sm text-slate-600">{item.signal}</p>
-          <p className="mt-3 rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-800 ring-1 ring-emerald-100">
-            {item.opportunity}
-          </p>
-          <p className="mt-3 text-sm font-semibold text-slate-900">{item.action}</p>
+          <p className="mt-2 text-sm font-semibold text-slate-900">{item.opportunity}</p>
+          <p className="mt-3 text-sm font-semibold text-primary">{item.action}</p>
         </article>
       ))}
     </div>
@@ -148,17 +144,17 @@ const TrendWidgets = ({ data }) => (
 );
 
 const InventoryCards = ({ data }) => (
-  <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div className="space-y-4">
     <SectionTitle
       icon={BadgeAlert}
       title="Inventory alerts"
       summary={data.summary || 'Risks that need an operator decision.'}
     />
-    <div className="grid gap-3 md:grid-cols-2">
-      {(data.alerts || []).slice(0, 6).map((item) => (
+    <div className="space-y-3">
+      {(data.alerts || []).slice(0, 5).map((item) => (
         <article
           key={`${item.productTitle}-${item.alertType}`}
-          className="rounded-lg border border-slate-200 p-4"
+          className="rounded-lg border border-slate-200 bg-white p-4"
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
@@ -171,9 +167,7 @@ const InventoryCards = ({ data }) => (
             </div>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">{item.message}</p>
-          <p className="mt-3 rounded-lg bg-slate-950 px-3 py-2 text-sm font-semibold text-white">
-            {item.action}
-          </p>
+          <p className="mt-3 text-sm font-bold text-primary">{item.action}</p>
         </article>
       ))}
     </div>
@@ -181,15 +175,15 @@ const InventoryCards = ({ data }) => (
 );
 
 const ImprovementList = ({ data }) => (
-  <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div className="space-y-4">
     <SectionTitle
       icon={Lightbulb}
       title="AI recommendations"
       summary={data.summary || 'Product improvements worth acting on next.'}
     />
     <div className="grid gap-3 lg:grid-cols-2">
-      {(data.suggestions || []).slice(0, 6).map((item) => (
-        <article key={`${item.productTitle}-${item.insight}`} className="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+      {(data.suggestions || []).slice(0, 4).map((item) => (
+        <article key={`${item.productTitle}-${item.insight}`} className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
               <h4 className="text-sm font-bold text-slate-950">{item.productTitle}</h4>
@@ -213,6 +207,7 @@ const AIInsightsPanel = ({ products, analyticsLoading, onToast }) => {
   const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeView, setActiveView] = useState('recommendations');
 
   const metricProducts = useMemo(
     () => products.filter((product) => product?.title && product?.category).slice(0, 12),
@@ -228,19 +223,11 @@ const AIInsightsPanel = ({ products, analyticsLoading, onToast }) => {
     setError('');
 
     try {
-      const [pricing, trends, inventory, improvements] = await Promise.all([
-        generatePricingInsights(metricProducts),
-        generateTrendingInsights(metricProducts),
-        generateInventoryAlerts(metricProducts),
-        generateImprovementSuggestions(metricProducts),
-      ]);
+      const response = await generateBusinessInsights(metricProducts);
 
       setInsights({
-        pricing: pricing.data,
-        trends: trends.data,
-        inventory: inventory.data,
-        improvements: improvements.data,
-        meta: pricing.meta,
+        ...response.data,
+        meta: response.meta,
       });
       onToast?.({
         type: 'success',
@@ -256,23 +243,14 @@ const AIInsightsPanel = ({ products, analyticsLoading, onToast }) => {
     }
   }, [metricProducts, onToast]);
 
-  useEffect(() => {
-    if (analyticsLoading || !metricProducts.length) {
-      return undefined;
-    }
-
-    const timer = window.setTimeout(fetchInsights, 250);
-
-    return () => window.clearTimeout(timer);
-  }, [analyticsLoading, fetchInsights, metricProducts.length]);
-
   if (analyticsLoading) {
     return <PanelSkeleton />;
   }
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2 text-sm font-bold text-primary">
             <Sparkles className="h-4 w-4" />
@@ -280,7 +258,7 @@ const AIInsightsPanel = ({ products, analyticsLoading, onToast }) => {
           </div>
           <h2 className="mt-2 text-xl font-bold text-slate-950">AI recommendations</h2>
           <p className="mt-1 max-w-2xl text-sm text-slate-500">
-            Actionable pricing, momentum, and inventory decisions derived from product performance metrics.
+            Generate a concise pricing, momentum, and inventory brief from product performance metrics.
           </p>
         </div>
         <button
@@ -290,8 +268,33 @@ const AIInsightsPanel = ({ products, analyticsLoading, onToast }) => {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-          Refresh insights
+          {insights ? 'Refresh insights' : 'Generate insights'}
         </button>
+        </div>
+
+        {insights && (
+          <div className="flex gap-1 overflow-x-auto px-3 py-3">
+            {[
+              ['recommendations', 'Recommendations'],
+              ['pricing', 'Pricing'],
+              ['trends', 'Trends'],
+              ['inventory', 'Inventory'],
+            ].map(([view, label]) => (
+              <button
+                key={view}
+                type="button"
+                onClick={() => setActiveView(view)}
+                className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                  activeView === view
+                    ? 'bg-slate-950 text-white'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {error && (
@@ -308,15 +311,23 @@ const AIInsightsPanel = ({ products, analyticsLoading, onToast }) => {
 
       {loading && !insights && <PanelSkeleton />}
 
+      {!loading && !insights && metricProducts.length > 0 && (
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
+          <Sparkles className="mx-auto h-6 w-6 text-primary" />
+          <p className="mt-3 text-sm font-bold text-slate-950">Generate a business brief when you need it.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            One Gemini request will create recommendations, pricing signals, trends, and stock alerts.
+          </p>
+        </div>
+      )}
+
       {insights && (
-        <>
-          <ImprovementList data={insights.improvements} />
-          <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-            <PricingCards data={insights.pricing} />
-            <InventoryCards data={insights.inventory} />
-          </div>
-          <TrendWidgets data={insights.trends} />
-        </>
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          {activeView === 'recommendations' && <ImprovementList data={insights.improvements} />}
+          {activeView === 'pricing' && <PricingCards data={insights.pricing} />}
+          {activeView === 'trends' && <TrendWidgets data={insights.trends} />}
+          {activeView === 'inventory' && <InventoryCards data={insights.inventory} />}
+        </div>
       )}
     </section>
   );

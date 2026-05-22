@@ -130,6 +130,13 @@ Focus on positioning, pricing tests, merchandising, and inventory-aware promotio
 
 ${productMetricsContext(products)}
 `,
+  summary: (products) => `
+Create a compact business insights brief for these ecommerce product metrics.
+Return pricing recommendations, trending product signals, inventory alerts, and improvement suggestions in one analysis.
+Prioritize the most actionable items for an operator. Keep each recommendation specific and avoid repeating the same action.
+
+${productMetricsContext(products)}
+`,
 };
 
 const textEnum = (values) => ({ type: 'STRING', enum: values });
@@ -250,6 +257,17 @@ const improvementsSchema = {
   required: ['summary', 'suggestions'],
 };
 
+const businessInsightsSchema = {
+  type: 'OBJECT',
+  properties: {
+    pricing: pricingSchema,
+    trends: trendSchema,
+    inventory: inventorySchema,
+    improvements: improvementsSchema,
+  },
+  required: ['pricing', 'trends', 'inventory', 'improvements'],
+};
+
 const parseStructuredOutput = (response) => {
   const outputText = response.candidates?.[0]?.content?.parts
     ?.map((part) => part.text || '')
@@ -364,7 +382,18 @@ const generateProductImprovementSuggestions = async (body) => {
   });
 };
 
+const generateBusinessInsightsSummary = async (body) => {
+  const products = normalizeProducts(body);
+
+  return generateStructuredInsights({
+    task: 'summary',
+    products,
+    schema: businessInsightsSchema,
+  });
+};
+
 export {
+  generateBusinessInsightsSummary,
   generatePricingRecommendations,
   generateTrendingProductInsights,
   generateInventoryAlerts,

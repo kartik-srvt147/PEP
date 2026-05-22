@@ -1,4 +1,5 @@
 import {
+  generateBusinessInsightsSummary,
   generateInventoryAlerts,
   generatePricingRecommendations,
   generateProductImprovementSuggestions,
@@ -58,7 +59,18 @@ const generateImprovementInsightsController = async (req, res, next) => {
   }
 };
 
+const generateBusinessInsightsController = async (req, res, next) => {
+  try {
+    const payload = await generateBusinessInsightsSummary(req.body);
+
+    sendInsightsResponse(res, 'Business insights generated successfully', payload);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
+  generateBusinessInsightsController,
   generatePricingInsightsController,
   generateTrendingInsightsController,
   generateInventoryAlertsController,
