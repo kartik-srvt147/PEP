@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BarChart3, Loader2, RefreshCw } from 'lucide-react';
+import AIInsightsPanel from '../components/dashboard/AIInsightsPanel';
 import AnalyticsDashboard from '../components/dashboard/AnalyticsDashboard';
 import ToastStack from '../components/dashboard/ToastStack';
 import { getAnalyticsDashboard } from '../services/analyticsApi';
@@ -69,6 +70,11 @@ const AnalyticsPage = () => {
         </section>
 
         <AnalyticsDashboard analytics={analytics} loading={loading} />
+        <AIInsightsPanel
+          products={analytics?.productPerformance || []}
+          analyticsLoading={loading}
+          onToast={addToast}
+        />
       </main>
     </div>
   );
