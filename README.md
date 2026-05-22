@@ -29,10 +29,10 @@ The project currently includes:
 
 ## AI Business Insights Panel
 
-<img src="./client/src/assets/aiInsights1.png" width="800" />
-<img src="./client/src/assets/aiInsights2.png" width="800" />
-<img src="./client/src/assets/aiInsights3.png" width="800" />
-<img src="./client/src/assets/aiInsights4.png" width="800" />
+<img src="./client/src/assets/aiInsight1.png" width="800" />
+<img src="./client/src/assets/aiInsight2.png" width="800" />
+<img src="./client/src/assets/aiInsight3.png" width="800" />
+<img src="./client/src/assets/aiInsight4.png" width="800" />
 
 ## Tech Stack
 
