@@ -10,25 +10,29 @@ The project currently includes:
 - Analytics APIs and a dedicated analytics frontend page with charts.
 - Gemini-powered business insights for pricing, product trends, inventory risk, and product improvement suggestions.
 
-## Image Placeholder: Landing Page
+## Landing Page
 
-> Add the landing page screenshot here.
+<img src="./client/src/assets/landing.png" width="800" />
 
-## Image Placeholder: Product Management Dashboard
+## Product Management Dashboard
 
-> Add the product dashboard screenshot here.
+<img src="./client/src/assets/dashboard.png" width="800" />
 
-## Image Placeholder: Product Form With AI Generation Studio
+## Product Form With AI Generation Studio
 
-> Add the add/edit product modal screenshot here.
+<img src="./client/src/assets/add.png" width="800" />
 
-## Image Placeholder: Analytics Dashboard
+## Analytics Dashboard
 
-> Add the analytics page screenshot here.
+<img src="./client/src/assets/analytics1.png" width="800" />
+<img src="./client/src/assets/analytics2.png" width="800" />
 
-## Image Placeholder: AI Business Insights Panel
+## AI Business Insights Panel
 
-> Add the AI insights panel screenshot here.
+<img src="./client/src/assets/aiInsights1.png" width="800" />
+<img src="./client/src/assets/aiInsights2.png" width="800" />
+<img src="./client/src/assets/aiInsights3.png" width="800" />
+<img src="./client/src/assets/aiInsights4.png" width="800" />
 
 ## Tech Stack
 
