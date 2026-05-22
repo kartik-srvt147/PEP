@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import { ShoppingBag, LogOut, User as UserIcon } from 'lucide-react';
 
@@ -22,9 +22,22 @@ const Navbar = () => {
         <nav className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="text-slate-600 hover:text-primary font-medium transition-colors">
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  `text-slate-600 hover:text-primary font-medium transition-colors ${isActive ? 'text-primary' : ''}`
+                }
+              >
                 Dashboard
-              </Link>
+              </NavLink>
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) =>
+                  `text-slate-600 hover:text-primary font-medium transition-colors ${isActive ? 'text-primary' : ''}`
+                }
+              >
+                Analytics
+              </NavLink>
               <div className="flex items-center gap-2 ml-4 pl-4 border-l border-slate-200">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-600">
                   <UserIcon className="w-4 h-4" />

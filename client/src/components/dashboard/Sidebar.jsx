@@ -1,24 +1,48 @@
-import { Boxes, Filter, PackageSearch, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import {
+  Boxes,
+  Filter,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PackageSearch,
+  RotateCcw,
+  SlidersHorizontal,
+} from 'lucide-react';
 
-const Sidebar = ({ filters, onFilterChange, onReset, categories }) => {
+const Sidebar = ({ filters, onFilterChange, onReset, categories, collapsed, onToggle }) => {
   const handleChange = (field, value) => {
     onFilterChange({ ...filters, [field]: value });
   };
 
   return (
-    <aside className="w-full border-b border-slate-200 bg-white lg:min-h-[calc(100vh-4rem)] lg:w-72 lg:border-b-0 lg:border-r">
-      <div className="sticky top-16 space-y-6 p-4 sm:p-6">
-        <div>
-          <div className="flex items-center gap-2 text-primary">
+    <aside
+      className={`w-full border-b border-slate-200 bg-white transition-all duration-300 lg:min-h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r ${
+        collapsed ? 'lg:w-20' : 'lg:w-72'
+      }`}
+    >
+      <div className="sticky top-16 space-y-6 p-4 sm:p-6 lg:px-4">
+        <div className={collapsed ? 'lg:text-center' : ''}>
+          <div className={`flex items-center gap-2 text-primary ${collapsed ? 'lg:justify-center' : ''}`}>
             <Boxes className="h-5 w-5" />
-            <span className="text-sm font-bold uppercase tracking-wide">Inventory</span>
+            <span className={`text-sm font-bold uppercase tracking-wide ${collapsed ? 'lg:hidden' : ''}`}>
+              Inventory
+            </span>
           </div>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className={`mt-2 text-sm text-slate-500 ${collapsed ? 'lg:hidden' : ''}`}>
             Manage product listings, stock, pricing, and performance from one workspace.
           </p>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:h-10 lg:w-10 lg:px-0"
+            title={collapsed ? 'Expand filters' : 'Collapse filters'}
+            aria-label={collapsed ? 'Expand filter sidebar' : 'Collapse filter sidebar'}
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            <span className="lg:hidden">{collapsed ? 'Expand filters' : 'Collapse filters'}</span>
+          </button>
         </div>
 
-        <div className="space-y-4">
+        <div className={`space-y-4 ${collapsed ? 'lg:hidden' : ''}`}>
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
             <Filter className="h-4 w-4" />
             Filters

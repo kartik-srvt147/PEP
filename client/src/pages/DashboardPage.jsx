@@ -103,6 +103,7 @@ const DashboardPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [viewMode, setViewMode] = useState('table');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [toasts, setToasts] = useState([]);
 
   const addToast = useCallback((toast) => {
@@ -252,6 +253,8 @@ const DashboardPage = () => {
           categories={categories}
           onFilterChange={handleFilterChange}
           onReset={handleResetFilters}
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed((current) => !current)}
         />
 
         <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">

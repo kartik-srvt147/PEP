@@ -12,6 +12,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -37,6 +38,7 @@ function App() {
         {/* Protected routes (only for authenticated users) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
         </Route>
       </Routes>
     </Router>
