@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 
-const DEFAULT_MODEL = 'gpt-5.2';
+const DEFAULT_MODEL = 'gpt-4o-mini';
 const PLACEHOLDER_KEYS = new Set(['', 'your_openai_api_key_here', 'sk-your-key-here']);
 
 let openaiClient = null;
@@ -9,6 +9,33 @@ const createHttpError = (message, statusCode) => {
   const error = new Error(message);
   error.statusCode = statusCode;
   return error;
+};
+
+const getOpenAIErrorMessage = (error) => {
+  const status = error.status || error.statusCode;
+  const message = error.error?.message || error.message || 'AI generation failed';
+
+  if (status === 401) {
+    return 'OpenAI API key is invalid or expired';
+  }
+
+  if (status === 403) {
+    return 'OpenAI API key does not have access to the selected model';
+  }
+
+  if (status === 404) {
+    return 'Selected OpenAI model was not found. Set OPENAI_MODEL to a model available to your account.';
+  }
+
+  if (status === 429) {
+    return 'OpenAI rate limit or quota exceeded. Please check your billing and usage limits.';
+  }
+
+  if (status >= 400 && status < 500) {
+    return message;
+  }
+
+  return 'AI generation failed. Please try again later.';
 };
 
 const getOpenAIClient = () => {
@@ -237,7 +264,8 @@ const runStructuredGeneration = async ({ task, input, schema }) => {
     }
 
     console.error('OpenAI generation error:', error);
-    throw createHttpError('AI generation failed. Please try again later.', 502);
+    const statusCode = error.status && error.status < 500 ? error.status : 502;
+    throw createHttpError(getOpenAIErrorMessage(error), statusCode);
   }
 };
 

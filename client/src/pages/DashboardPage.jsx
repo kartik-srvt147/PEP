@@ -237,6 +237,7 @@ const DashboardPage = () => {
           open={modalOpen}
           product={editingProduct}
           saving={saving}
+          onToast={addToast}
           onClose={() => {
             setModalOpen(false);
             setEditingProduct(null);
