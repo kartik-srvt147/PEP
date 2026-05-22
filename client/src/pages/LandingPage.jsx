@@ -19,7 +19,7 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <header className="bg-white shadow-sm border-b border-slate-200">
+      {/* <header className="bg-white shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-primary font-bold text-xl">
             <ShoppingBag className="w-6 h-6" />
@@ -31,7 +31,7 @@ const LandingPage = () => {
             </button>
           </nav>
         </div>
-      </header>
+      </header> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-3xl mx-auto">
