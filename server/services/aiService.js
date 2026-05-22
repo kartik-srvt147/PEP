@@ -1,9 +1,11 @@
-import OpenAI from 'openai';
-
-const DEFAULT_MODEL = 'gpt-4o-mini';
-const PLACEHOLDER_KEYS = new Set(['', 'your_openai_api_key_here', 'sk-your-key-here']);
-
-let openaiClient = null;
+const DEFAULT_MODEL = 'gemini-2.5-flash';
+const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
+const PLACEHOLDER_KEYS = new Set([
+  '',
+  'your_gemini_api_key_here',
+  'your_openai_api_key_here',
+  'sk-your-key-here',
+]);
 
 const createHttpError = (message, statusCode) => {
   const error = new Error(message);
@@ -11,24 +13,35 @@ const createHttpError = (message, statusCode) => {
   return error;
 };
 
-const getOpenAIErrorMessage = (error) => {
-  const status = error.status || error.statusCode;
-  const message = error.error?.message || error.message || 'AI generation failed';
+const parseJsonText = (text) => {
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
+const getGeminiErrorMessage = (status, payload) => {
+  const message = payload?.error?.message || 'AI generation failed';
 
   if (status === 401) {
-    return 'OpenAI API key is invalid or expired';
+    return 'Gemini API key is invalid or expired';
   }
 
   if (status === 403) {
-    return 'OpenAI API key does not have access to the selected model';
+    return 'Gemini API key does not have access to the selected model or API';
   }
 
   if (status === 404) {
-    return 'Selected OpenAI model was not found. Set OPENAI_MODEL to a model available to your account.';
+    return 'Selected Gemini model was not found. Set GEMINI_MODEL to a model available to your account.';
   }
 
   if (status === 429) {
-    return 'OpenAI rate limit or quota exceeded. Please check your billing and usage limits.';
+    return 'Gemini rate limit or quota exceeded. Please check your billing and usage limits.';
   }
 
   if (status >= 400 && status < 500) {
@@ -38,21 +51,17 @@ const getOpenAIErrorMessage = (error) => {
   return 'AI generation failed. Please try again later.';
 };
 
-const getOpenAIClient = () => {
-  const apiKey = process.env.OPENAI_API_KEY || '';
+const getGeminiApiKey = () => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
 
   if (PLACEHOLDER_KEYS.has(apiKey.trim())) {
-    throw createHttpError('OpenAI API key is not configured', 503);
+    throw createHttpError('Gemini API key is not configured', 503);
   }
 
-  if (!openaiClient) {
-    openaiClient = new OpenAI({ apiKey });
-  }
-
-  return openaiClient;
+  return apiKey.trim();
 };
 
-const getModel = () => process.env.OPENAI_MODEL || DEFAULT_MODEL;
+const getModel = () => process.env.GEMINI_MODEL || DEFAULT_MODEL;
 
 const normalizeFeatures = (features) => {
   if (Array.isArray(features)) {
@@ -133,101 +142,85 @@ ${buildProductContext(input)}
 };
 
 const productDescriptionSchema = {
-  type: 'json_schema',
-  name: 'product_description_response',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      title: { type: 'string' },
-      metaDescription: { type: 'string' },
-      shortDescription: { type: 'string' },
-      longDescription: { type: 'string' },
-      bulletPoints: {
-        type: 'array',
-        items: { type: 'string' },
-      },
-      primaryKeywords: {
-        type: 'array',
-        items: { type: 'string' },
-      },
+  type: 'OBJECT',
+  properties: {
+    title: { type: 'STRING' },
+    metaDescription: { type: 'STRING' },
+    shortDescription: { type: 'STRING' },
+    longDescription: { type: 'STRING' },
+    bulletPoints: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
     },
-    required: [
-      'title',
-      'metaDescription',
-      'shortDescription',
-      'longDescription',
-      'bulletPoints',
-      'primaryKeywords',
-    ],
+    primaryKeywords: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
+    },
   },
+  required: [
+    'title',
+    'metaDescription',
+    'shortDescription',
+    'longDescription',
+    'bulletPoints',
+    'primaryKeywords',
+  ],
 };
 
 const seoTagsSchema = {
-  type: 'json_schema',
-  name: 'seo_tags_response',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      tags: {
-        type: 'array',
-        items: { type: 'string' },
-      },
-      seoKeywords: {
-        type: 'array',
-        items: { type: 'string' },
-      },
-      longTailKeywords: {
-        type: 'array',
-        items: { type: 'string' },
-      },
-      categorySuggestions: {
-        type: 'array',
-        items: { type: 'string' },
-      },
+  type: 'OBJECT',
+  properties: {
+    tags: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
     },
-    required: ['tags', 'seoKeywords', 'longTailKeywords', 'categorySuggestions'],
+    seoKeywords: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
+    },
+    longTailKeywords: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
+    },
+    categorySuggestions: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
+    },
   },
+  required: ['tags', 'seoKeywords', 'longTailKeywords', 'categorySuggestions'],
 };
 
 const marketingCaptionsSchema = {
-  type: 'json_schema',
-  name: 'marketing_captions_response',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      captions: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            channel: { type: 'string' },
-            angle: { type: 'string' },
-            caption: { type: 'string' },
-            callToAction: { type: 'string' },
-            hashtags: {
-              type: 'array',
-              items: { type: 'string' },
-            },
+  type: 'OBJECT',
+  properties: {
+    captions: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          channel: { type: 'STRING' },
+          angle: { type: 'STRING' },
+          caption: { type: 'STRING' },
+          callToAction: { type: 'STRING' },
+          hashtags: {
+            type: 'ARRAY',
+            items: { type: 'STRING' },
           },
-          required: ['channel', 'angle', 'caption', 'callToAction', 'hashtags'],
         },
+        required: ['channel', 'angle', 'caption', 'callToAction', 'hashtags'],
       },
-      shortCaption: { type: 'string' },
-      adCaption: { type: 'string' },
     },
-    required: ['captions', 'shortCaption', 'adCaption'],
+    shortCaption: { type: 'STRING' },
+    adCaption: { type: 'STRING' },
   },
+  required: ['captions', 'shortCaption', 'adCaption'],
 };
 
 const parseStructuredOutput = (response) => {
-  const outputText = response.output_text;
+  const outputText = response.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text || '')
+    .join('')
+    .trim();
 
   if (!outputText) {
     throw createHttpError('AI response did not include structured output', 502);
@@ -240,32 +233,72 @@ const parseStructuredOutput = (response) => {
   }
 };
 
+const fetchGeminiContent = async ({ endpoint, apiKey, body }) => {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const responseText = await response.text();
+  const payload = parseJsonText(responseText);
+
+  if (!response.ok) {
+    throw createHttpError(
+      getGeminiErrorMessage(response.status, payload) || responseText || 'Gemini request failed',
+      response.status < 500 ? response.status : 502
+    );
+  }
+
+  if (!payload) {
+    throw createHttpError('Gemini returned a non-JSON response', 502);
+  }
+
+  return payload;
+};
+
 const runStructuredGeneration = async ({ task, input, schema }) => {
-  const client = getOpenAIClient();
+  const apiKey = getGeminiApiKey();
   const model = getModel();
+  const endpoint = `${GEMINI_API_BASE_URL}/models/${model}:generateContent`;
 
   try {
-    const response = await client.responses.create({
-      model,
-      instructions: baseInstructions,
-      input: prompts[task](input),
-      text: {
-        format: schema,
+    const responsePayload = await fetchGeminiContent({
+      endpoint,
+      apiKey,
+      body: {
+        systemInstruction: {
+          parts: [{ text: baseInstructions }],
+        },
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompts[task](input) }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+        },
       },
     });
 
     return {
       model,
-      result: parseStructuredOutput(response),
+      provider: 'gemini',
+      result: parseStructuredOutput(responsePayload),
     };
   } catch (error) {
     if (error.statusCode) {
       throw error;
     }
 
-    console.error('OpenAI generation error:', error);
-    const statusCode = error.status && error.status < 500 ? error.status : 502;
-    throw createHttpError(getOpenAIErrorMessage(error), statusCode);
+    console.error('Gemini generation error:', error);
+    throw createHttpError('Gemini generation failed. Please try again later.', 502);
   }
 };
 

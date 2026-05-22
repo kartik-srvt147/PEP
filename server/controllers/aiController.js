@@ -10,6 +10,7 @@ const sendAiResponse = (res, message, payload) => {
     message,
     data: payload.result,
     meta: {
+      provider: payload.provider,
       model: payload.model,
     },
   });
