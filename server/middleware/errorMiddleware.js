@@ -5,8 +5,9 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message;
+  let errors = null;
 
   // If Mongoose not found error, set to 404 and change message
   if (err.name === 'CastError' && err.kind === 'ObjectId') {
@@ -14,10 +15,26 @@ const errorHandler = (err, req, res, next) => {
     message = 'Resource not found';
   }
 
-  res.status(statusCode).json({
-    message: message,
+  if (err.name === 'ValidationError') {
+    statusCode = 400;
+    message = 'Validation failed';
+    errors = Object.values(err.errors).map((error) => ({
+      field: error.path,
+      message: error.message,
+    }));
+  }
+
+  const response = {
+    success: false,
+    message,
     stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-  });
+  };
+
+  if (errors) {
+    response.errors = errors;
+  }
+
+  res.status(statusCode).json(response);
 };
 
 export { notFound, errorHandler };
